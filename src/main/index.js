@@ -221,18 +221,19 @@ app.on('ready', async () => {
       workerWindow.webContents.send('telemetry', iracing.telemetry);
     } else {
       const reshadeIni = loadIniFile.sync(config.get('reshadeFile'));
-      const folder = reshadeIni.GENERAL.ScreenshotPath + '\\';
+      const folder = config.get('reshadeFolder');
+      const watchFolder = folder.endsWith('\\') ? folder : folder + '\\';
       const key = reshadeIni.INPUT.KeyScreenshot.split(',')[0];
       await delay(1000);
       sendKey(key);
-      const watcher = fs.watch(folder, (eventType, filename) => {
-        if (filename.includes('iRacing')) {
+      const watcher = fs.watch(watchFolder, (eventType, filename) => {
+        if (filename && path.extname(filename).toLowerCase() === '.png') {
           resize(width, height, left, top);
           iracing.camControls.setState(cameraState); // reset camera state
           takingScreenshot = false;
           workerWindow.webContents.send('session-info', iracing.sessionInfo);
           workerWindow.webContents.send('telemetry', iracing.telemetry);
-          workerWindow.webContents.send('screenshot-reshade', folder + filename);
+          workerWindow.webContents.send('screenshot-reshade', path.join(watchFolder, filename));
           watcher.close();
         }
       });
@@ -376,16 +377,23 @@ function resize (width, height, left, top) {
 }
 
 function sendKey (keyID) {
-  // const user32 = new ffi.Library('user32', {
-  //   FindWindowA: ['long', ['string', 'string']],
-  //   SendMessageA: [
-  //     'long', ['long', 'int32', 'long', 'int32']
-  //   ]
-  // });
-  //
-  // const window = user32.FindWindowA(null, 'iRacing.com Simulator');
-  // user32.SendMessageA(window, 0x0100 /* WM_KEYDOWN */, 0x2C, 0);
-  // user32.SendMessageA(window, 0x0101 /* WM_KEYUP */, 0x2C, 0);
+  try {
+    const user32 = new ffi.Library('user32', {
+      FindWindowA: ['long', ['string', 'string']],
+      SendMessageA: ['long', ['long', 'uint32', 'long', 'long']]
+    });
+
+    const window = user32.FindWindowA(null, 'iRacing.com Simulator');
+    if (window === 0) {
+      console.log('iRacing window not found');
+      return;
+    }
+    const code = parseInt(keyID);
+    user32.SendMessageA(window, 0x0100, code, 0); // WM_KEYDOWN
+    user32.SendMessageA(window, 0x0101, code, 0); // WM_KEYUP
+  } catch (e) {
+    console.log(e);
+  }
 }
 
 function RectPointerToRect (rectPointer) {

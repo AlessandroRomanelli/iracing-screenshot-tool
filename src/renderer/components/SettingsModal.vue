@@ -173,6 +173,26 @@
               </b-button>
             </p>
           </b-field>
+          <b-field label="Reshade Screenshot Folder" />
+
+          <b-field label="">
+            <b-input
+              disabled
+              type="text"
+              :value="reshadeFolder"
+              style="width:100vw"
+            />
+            <p class="control">
+              <b-button
+                :disabled="!reshade"
+                class="button is-primary"
+                style="width:130px"
+                @click="openReshadeFolderDialog"
+              >
+                Select Folder
+              </b-button>
+            </p>
+          </b-field>
         </div>
       </div>
     </section>
@@ -198,7 +218,8 @@ export default {
       screenLeft: config.get('defaultScreenLeft'),
       toolVersion: version,
       reshade: config.get('reshade'),
-      reshadeFile: config.get('reshadeFile')
+      reshadeFile: config.get('reshadeFile'),
+      reshadeFolder: config.get('reshadeFolder')
     };
   },
   watch: {
@@ -222,6 +243,16 @@ export default {
       const file = this.reshadeFile;
       if (config.get('reshadeFile') !== file) {
         config.set('reshadeFile', file);
+      }
+    },
+    reshadeFolder () {
+      let folder = this.reshadeFolder;
+      if (config.get('reshadeFolder') !== folder) {
+        if (folder.slice(-1) !== '\\') {
+          folder += '\\';
+          this.reshadeFolder = folder;
+        }
+        config.set('reshadeFolder', folder);
       }
     }
   },
@@ -273,6 +304,18 @@ export default {
       }).then(result => {
         if (!result.canceled) {
           this.reshadeFile = result.filePaths[0];
+        }
+      }).catch(err => {
+        console.log(err);
+      });
+    },
+    openReshadeFolderDialog () {
+      dialog.showOpenDialog({
+        defaultPath: config.get('reshadeFolder'),
+        properties: ['openDirectory']
+      }).then(result => {
+        if (!result.canceled) {
+          this.reshadeFolder = result.filePaths[0];
         }
       }).catch(err => {
         console.log(err);

@@ -79,6 +79,10 @@ const schema = {
   reshadeFile: {
     type: 'string',
     default: 'C:\\Program Files (x86)\\iRacing\\ReShade.ini'
+  },
+  reshadeFolder: {
+    type: 'string',
+    default: 'C:\\Program Files (x86)\\iRacing\\'
   }
 };
 
