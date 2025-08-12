@@ -155,7 +155,7 @@ export default {
       document.body.style.cursor = 'auto';
       this.takingScreenshot = false;
       this.$buefy.notification.open({
-        message: 'An error has occured when taking a screenshot :(',
+        message: 'An error has occurred when taking a screenshot :(',
         type: 'is-danger'
       });
       ipcRenderer.send('request-iracing-status', '');
