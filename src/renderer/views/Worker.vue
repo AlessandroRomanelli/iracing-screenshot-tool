@@ -7,6 +7,7 @@ const { ipcRenderer, remote } = require('electron');
 const fs = require('fs');
 const sharp = require('sharp');
 const app = remote.app;
+const path = require('path');
 
 const config = require('../../utilities/config');
 let sessionInfo, telemetry, windowID, crop;
@@ -34,7 +35,7 @@ export default {
     });
     ipcRenderer.on('screenshot-reshade', (event, arg) => {
       const file = getFileNameString();
-      var fileName = config.get('screenshotFolder') + file + '.png';
+      var fileName = path.join(config.get('screenshotFolder'), file + '.png');
       // crop and move file
       sharp.cache(false);
       crop = config.get('crop');
@@ -85,7 +86,7 @@ function saveImage (blob) {
     base64data = reader.result;
     base64data = base64data.replace(/^data:image\/png;base64,/, '');
     const file = getFileNameString();
-    var fileName = config.get('screenshotFolder') + file + '.png';
+    var fileName = path.join(config.get('screenshotFolder'), file + '.png');
     var buff = await Buffer.from(base64data, 'base64');
     await fs.writeFileSync(fileName, '');
 
@@ -141,7 +142,7 @@ function getFileNameString () {
   var file = trackName + '-' + driverName + '-' + count;
   var screenshotFolder = config.get('screenshotFolder');
   while (!unique) {
-    if (fs.existsSync(screenshotFolder + file + '.png')) {
+    if (fs.existsSync(path.join(screenshotFolder, file + '.png'))) {
       count++;
       file = trackName + '-' + driverName + '-' + count;
     } else {
