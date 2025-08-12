@@ -390,10 +390,10 @@ function sendKey (keyID) {
 
 function RectPointerToRect (rectPointer) {
   const rect = {};
-  rect.left = rectPointer.readUInt32LE(0);
-  rect.top = rectPointer.readUInt32LE(4);
-  rect.right = rectPointer.readUInt32LE(8);
-  rect.bottom = rectPointer.readUInt32LE(12);
+  rect.left = rectPointer.readInt32LE(0);
+  rect.top = rectPointer.readInt32LE(4);
+  rect.right = rectPointer.readInt32LE(8);
+  rect.bottom = rectPointer.readInt32LE(12);
   return rect;
 }
 
