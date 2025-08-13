@@ -31,7 +31,7 @@ const gotTheLock = app.requestSingleInstanceLock();
 const isDev = process.env.NODE_ENV === 'development';
 const isDebug = process.argv.includes('--debug');
 
-var irsdk = require('node-irsdk');
+var irsdk = require('irsdk-node');
 var iracing = irsdk.getInstance();
 
 let mainWindow, workerWindow;
